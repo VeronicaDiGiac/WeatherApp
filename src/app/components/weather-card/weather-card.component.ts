@@ -5,38 +5,38 @@ import {
   latLongResponseModel,
   WeatherDataResponseModel,
 } from '../../Models/interfaces';
-import { RouterModule, RouterLink, RouterOutlet } from '@angular/router';
-import { Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-weather-card',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink, RouterOutlet],
+  imports: [CommonModule],
   template: `
     <div
-      class="d-flex justify-content-center align-items-center"
-      style="font-family: 'Open Sans', sans-serif"
+      class="d-flex justify-content-center align-items-center  bg-light bg-gradient"
+      style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)"
     >
-      <div class="card" style="width: 400px; height: 700px">
+      <div
+        class="card shadow-lg border-0"
+        style="width: 400px; height: 700px; border-radius: 15px;"
+      >
+        <!-- Corpo della card con immagine di sfondo -->
         <div
-          class="card-body"
-          style=" color:#fff;"
+          class="card-body text-center text-light position-relative d-flex flex-column justify-content-between p-4"
           [ngStyle]="{
             'background-image': 'url(' + wheaterGif + ')',
             'background-size': 'cover',
             'background-position': 'center',
-            height: '700px',
-            width: '400px',
-            position: 'relative',
             color: textColor
           }"
         >
-          <div class="m-2 text-center">
-            <h6 style="font-size: 30px;">
-              {{ currentDate }}
-            </h6>
-            <h1 style="letter-spacing: 1.5px;">{{ currentCityValue }}</h1>
-            <h2 *ngIf="dataWheaterResponse[0]?.current">
+          <!-- Data e città -->
+          <div class="bg-dark bg-opacity-75 py-3 rounded mb-3">
+            <h6 class="display-6 mb-2">{{ currentDate }}</h6>
+            <h1 class="display-4">{{ currentCityValue }}</h1>
+            <h2
+              *ngIf="dataWheaterResponse[0]?.current"
+              class="display-3 fw-bold"
+            >
               {{ dataWheaterResponse[0].current.temperature_2m }}°
             </h2>
           </div>
@@ -100,8 +100,6 @@ import { Input, Output } from '@angular/core';
   `,
   styles: [
     `
-      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
-
       * :not(.nav-link):not(.card-header) {
         opacity: 0;
         transform: translateY(20px);
@@ -118,18 +116,25 @@ import { Input, Output } from '@angular/core';
           transform: translateY(0);
         }
       }
+
+      h1,
+      h2 {
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
     `,
   ],
 })
 export class WeatherCardComponent implements OnInit {
   currentDate!: string;
 
-  currentCityValue: string = 'Roma';
+  currentCityValue: string = 'Rome';
 
   latLongResponse: latLongResponseModel = {
     results: [],
     generationtime_ms: 0,
   };
+
   dataWheaterResponse: WeatherDataResponseModel[] = [];
 
   wheaterGif: string = '';
@@ -144,6 +149,10 @@ export class WeatherCardComponent implements OnInit {
     console.log(this.currentDate);
 
     this.getCityPosition(this.currentCityValue);
+    this.apiservice.cityName$.subscribe((cityName) => {
+      this.currentCityValue = cityName;
+      this.getCityPosition(cityName);
+    });
   }
 
   getCityPosition(currentCityValue: string) {
