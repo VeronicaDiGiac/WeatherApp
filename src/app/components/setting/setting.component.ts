@@ -14,7 +14,7 @@ import { ApiServiceService } from '../../Services/api-service.service';
     >
       <div class="m-5 text-center">
         <form (ngSubmit)="submitCity()">
-          <label for="cityInput" class="form-label "
+          <label for="cityInput" class="form-label"
             ><h1 class="text-dark">Set your City</h1></label
           >
           <input

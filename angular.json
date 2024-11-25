@@ -21,16 +21,26 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "./src/styles.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "baseHref": "/WeateherApp/"
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
+
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "1MB",
                   "maximumError": "1MB"
                 },
                 {
@@ -42,7 +52,6 @@
               "outputHashing": "all"
             },
             "development": {
-              "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
             }

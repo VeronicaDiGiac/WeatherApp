@@ -179,7 +179,7 @@ export class WeatherCardComponent implements OnInit {
         if (isRaining) {
           this.wheaterGif = '../../../assets/giphyrainsea.webp';
         } else {
-          this.wheaterGif = '../../../assets/giphy.webp'; //
+          this.wheaterGif = '../../../assets/giphy.webp';
           this.textColor = 'black';
         }
       });
