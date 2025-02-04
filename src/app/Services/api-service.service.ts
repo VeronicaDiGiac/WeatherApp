@@ -1,35 +1,35 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
-  latLongResponseModel,
-  WeatherDataResponseModel,
+  LatLongResponseModel,
+  MeteoDataResponseModel,
 } from '../Models/interfaces';
-import { Observable } from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiServiceService {
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
-  private cityNameSource = new BehaviorSubject<string>('Roma'); // Valore di default
+  // BehaviorSubject per gestire il nome della città
+  readonly cityNameSource = new BehaviorSubject<string>('Roma');
   cityName$ = this.cityNameSource.asObservable();
 
-  setCityName(cityName: string) {
+  setCityName(cityName: string): void {
     this.cityNameSource.next(cityName);
   }
-
-  getLatLongData(currentCityValue: string): Observable<latLongResponseModel> {
-    const LatLongurl = `https://geocoding-api.open-meteo.com/v1/search?name=${currentCityValue}&count=1&language=en&format=json`;
-    return this.http.get<latLongResponseModel>(LatLongurl);
+  // Prende i dati per la posizione della citta'
+  getLatLongData(currentCityValue: string): Observable<LatLongResponseModel> {
+    const LatLongUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${currentCityValue}&count=1&language=en&format=json`;
+    return this.http.get<LatLongResponseModel>(LatLongUrl);
   }
-
+  // Ottiene i dati in base alla posizione fornita
   getDataWeather(
     latitude: number,
     longitude: number
-  ): Observable<WeatherDataResponseModel> {
-    const DataWeatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m`;
-    return this.http.get<WeatherDataResponseModel>(DataWeatherUrl);
+  ): Observable<MeteoDataResponseModel> {
+    const DataWeatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`;
+    return this.http.get<MeteoDataResponseModel>(DataWeatherUrl);
   }
 }
