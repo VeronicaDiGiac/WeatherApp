@@ -21,7 +21,7 @@ export class ApiServiceService {
   }
   // Prende i dati per la posizione della citta'
   getLatLongData(currentCityValue: string): Observable<LatLongResponseModel> {
-    const LatLongUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${currentCityValue}&count=1&language=en&format=json`;
+    const LatLongUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${currentCityValue}&count=1&language=it&format=json`;
     return this.http.get<LatLongResponseModel>(LatLongUrl);
   }
   // Ottiene i dati in base alla posizione fornita

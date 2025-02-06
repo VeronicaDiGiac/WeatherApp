@@ -1,17 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
-/* styles.css */
+/* Variabili CSS */
 :root {
-  --primary-color: rgb(19, 52, 94); /* Blu scuro per il colore primario */
-  --secondary-color: rgb(
-    255,
-    115,
-    0
-  ); /* Arancio brillante per il colore secondario */
-  --background-color: rgb(224, 247, 255); /* Azzurro chiaro per lo sfondo */
-  --text-color: rgb(51, 51, 51); /* Grigio scuro per il testo */
-  --border-radius: 12px; /* Bordi più arrotondati */
-  --box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Ombra più accentuata per un effetto moderno */
+  --primary-color: rgb(3, 58, 112);
+  --background-color: #e6f2ff;
+  --text-color: #333333;
+  --border-radius: 12px;
+  --box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  --vh: 1vh; /* Variabile dinamica per l'altezza */
 }
 
 /* Reset di base */
@@ -22,146 +18,215 @@
 }
 
 body {
-  font-family: Poppins, sans-serif;
+  font-family: "Roboto", sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
-  padding: 20px;
+  display: flex;
+  justify-content: center;
+  touch-action: pan-y;
+  height: calc(var(--vh) * 100);
+  width: 100%;
+  overflow: hidden;
+  background-image: url("./assets/DayWallpaper.jpg");
+  background-attachment: scroll;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-/* Container principale */
+body::before {
+  content: "";
+  position: fixed; /* Lo rende fisso senza usare background-attachment */
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-image: url("./assets/DayWallpaper.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Container principale (mobile-first) */
 .container {
-  max-width: 1200px;
+  width: 100%;
+  height: calc(var(--vh) * 100);
   margin: 0 auto;
-  padding: 20px;
-  background-color: white;
-  border-radius: var(--border-radius);
+  padding: 15px;
   box-shadow: var(--box-shadow);
-}
-
-/* Header */
-.header {
-  padding: 5px;
-  margin-bottom: 10px;
-}
-
-.header h1 {
-  font-size: 2rem;
-  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.1); /* Leggermente trasparente */
+  backdrop-filter: blur(2px); /* Sfocatura dello sfondo */
+  border-radius: var(--border-radius);
 }
 
 /* Barra di ricerca */
 .search-bar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 5px;
+  margin-bottom: 15px;
 }
 
 .search-bar input {
   flex: 1;
   padding: 10px;
-  border: 1px solid var(--secondary-color);
+  border: 1px solid #0f172a;
   border-radius: var(--border-radius);
+  font-size: 1rem;
 }
 
 .search-bar button {
   padding: 10px 20px;
-  background-color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
+  font-size: 1rem;
 }
 
 .search-bar button:hover {
-  background-color: darken(var(--primary-color), 50%);
+  background-color: var(--primary-color);
 }
-
+.search-bar button:active {
+  transform: scale(0.95);
+}
 /* Meteo attuale */
+
 .current-weather {
-  background-color: var(--background-color);
-  padding: 20px;
+  padding: 10px;
   border-radius: var(--border-radius);
-  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+  background-color: rgba(255, 255, 255, 0.1);
+  text-align: center;
+  height: calc(var(--vh) * 90);
 }
 
-.current-weather h2 {
+.fade-in-container {
+  opacity: 0;
+  transform: translateY(50px);
+  animation: fadeInUp 1.5s ease 0.2s forwards; /* Ritardo di 0.3 secondi */
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.current-weather .city-name {
+  font-size: 4rem;
+  margin-bottom: 5px;
+}
+
+.date {
   font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--primary-color);
   margin-bottom: 10px;
+}
+
+.current-weather .temp-style {
+  color: white;
+  font-size: 5rem;
 }
 
 .weather-details {
-  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 5px;
+  width: 100%;
 }
 
-.weather-details p {
-  margin: 0;
+.icon-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 2px;
+  font-size: 0.9rem;
+  width: auto; /* Evita che si allarghi troppo */
+  text-align: center;
 }
+
+.icon-text > i {
+  font-size: 1rem;
+}
+.icon-text > span {
+  font-weight: bold;
+}
+
+.weather-icon {
+  width: 45px;
+  height: auto;
+}
+
 /* Previsioni settimanali */
 .weekly-forecast {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column; /* Allinea gli elementi in colonna */
+  justify-content: flex-end; /* Posiziona gli elementi alla fine (in basso) */
+  align-items: center; /* Centra orizzontalmente */
+  margin-top: 150px; /* Puoi aggiustare questo valore se necessario */
+  padding: 10px 0; /* Aggiungi padding se necessario */
+  width: 100%; /* Assicura che il contenitore occupi tutta la larghezza */
 }
 
-.weekly-forecast h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
+/* Card previsione - ora in griglia */
 .forecast-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(100px, 1fr)
+  ); /* Griglia responsiva con min dimensione fissa */
   gap: 10px;
+  padding: 10px 0;
+  width: 100%;
 }
 
+/* Card */
 .forecast-card {
-  background-color: var(--background-color);
+  background: rgba(255, 255, 255, 0.2); /* Trasparenza */
+  backdrop-filter: blur(5px); /* Sfocatura per migliorare la leggibilità */
   padding: 15px;
   border-radius: var(--border-radius);
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s ease;
+  box-shadow: var(--box-shadow);
+  min-width: 100px; /* Stessa dimensione minima per tutte le card */
+  height: 100px; /* Altezza fissa per uniformità */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Hover sulla card */
 .forecast-card:hover {
   transform: scale(1.05);
 }
 
 .forecast-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: var(--primary-color);
 }
 
-/* Dettagli del giorno selezionato */
-.day-details {
-  background-color: var(--background-color);
-  padding: 20px;
-  border-radius: var(--border-radius);
+.forecast-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 5px;
 }
 
-.day-details h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-}
-
-/* Media Queries per dispositivi più grandi */
-@media (min-width: 768px) {
-  .header h1 {
-    font-size: 2.5rem;
-  }
-
-  .current-weather h2,
-  .weekly-forecast h2,
-  .day-details h2 {
-    font-size: 2rem;
-  }
-
-  .forecast-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
+.night-time {
+  background-image: url("./assets/NightWallpaper.jpg");
+  background-attachment: scroll;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }

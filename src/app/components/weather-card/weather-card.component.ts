@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, LOCALE_ID, Renderer2 } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
 import { ApiServiceService } from '../../Services/api-service.service';
 import { FormsModule } from '@angular/forms';
 import {
@@ -16,9 +16,6 @@ import { RoundTempPipe } from '../../round-temp.pipe';
   imports: [CommonModule, FormsModule, RoundTempPipe],
   template: `
     <div class="container">
-      <div class="header">
-        <h1>🌤️Meteo</h1>
-      </div>
       <!-- Barra di ricerca -->
       <div class="search-bar">
         <input
@@ -26,102 +23,69 @@ import { RoundTempPipe } from '../../round-temp.pipe';
           [(ngModel)]="cityInput"
           placeholder="Inserisci una città"
         />
-        <button (click)="updateCity()">🔍 Cerca</button>
+        <button (click)="updateCity()">Cerca</button>
       </div>
 
       <!-- Meteo attuale -->
-      <div *ngIf="dataWeatherResponse" class="current-weather">
-        <h2>🌍 {{ currentCityValue }}</h2>
+      <div
+        *ngIf="dataWeatherResponse"
+        class="current-weather fade-in-container"
+      >
+        <h2 class="city-name">{{ currentCityValue }}</h2>
+        <p class="date">{{ currentDate }}</p>
+        <div class="temp-style">
+          <span
+            >{{
+              dataWeatherResponse.current.temperature_2m ?? 'N/D' | roundTemp
+            }}°C</span
+          >
+        </div>
         <div class="weather-details">
-          <p>{{ currentDate | date : 'mediumDate' }}</p>
-          <div class="weather-details">
-            <p>
-              <i class="fas fa-thermometer-half fa-lg"></i>
-              {{
-                dataWeatherResponse.current.temperature_2m ?? 'N/D' | roundTemp
-              }}°C
-            </p>
-            <p>
-              <i class="fas fa-tint fa-lg"></i>
-              {{ dataWeatherResponse.current.relative_humidity_2m ?? 'N/D' }}%
-            </p>
-            <p>
-              <i class="fas fa-wind fa-lg"></i>
-              {{ dataWeatherResponse.current.wind_speed_10m ?? 'N/D' }} km/h
-            </p>
-            <p>
-              <i class="fas fa-cloud-rain fa-lg"></i>
-              {{ dataWeatherResponse.current.precipitation ?? 'N/D' }} mm
-            </p>
+          <!-- <div class="icon-text">
+            <i class="fas fa-thermometer-half"></i>
+          </div> -->
+          <div class="icon-text">
+            <i class="fas fa-tint"></i>
+            <span
+              >{{
+                dataWeatherResponse.current.relative_humidity_2m ?? 'N/D'
+              }}%</span
+            >
+          </div>
+          <div class="icon-text">
+            <i class="fas fa-wind"></i>
+            <span
+              >{{
+                dataWeatherResponse.current.wind_speed_10m ?? 'N/D'
+              }}
+              km/h</span
+            >
           </div>
 
-          <!-- Previsioni Settimanali -->
-          <div *ngIf="dailyData.length > 0" class="mb-4">
-            <h2 class="text-center text-primary">📅 Previsioni Settimanali</h2>
-            <div class="row">
-              <div
-                class="col-md-4 mb-3"
-                *ngFor="let day of dailyData; let i = index"
-              >
-                <div
-                  class="card forecast-card shadow-sm"
-                  (click)="selectDay(i)"
-                >
-                  <div class="card-body text-center">
-                    <h5 class="card-title">
-                      {{ day.date | date : 'mediumDate' }}
-                    </h5>
-                    <p class="card-text">
-                      <i class="fas fa-temperature-high"></i>
-                      <strong>Max:</strong>
-                      {{ day.temperatureMax | roundTemp }}°C <br />
-                      <i class="fas fa-temperature-low"></i>
-                      <strong>Min:</strong>
-                      {{ day.temperatureMin | roundTemp }}°C
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="icon-text">
+            <i class="fas fa-cloud"></i>
+            <span
+              >{{ dataWeatherResponse.current.precipitation ?? 'N/D' }} mm</span
+            >
           </div>
+        </div>
 
-          <!-- Dettagli Giorno Selezionato -->
-          <div *ngIf="selectedDay" class="day-details">
-            <h2>
-              📍 Dettagli per {{ selectedDay.date | date : 'mediumDate' }}
-            </h2>
-            <div class="details-grid">
-              <p>
-                <strong>Temperatura Max:</strong>
-                {{ selectedDay.temperatureMax }}°C
-              </p>
-              <p>
-                <strong>Temperatura Min:</strong>
-                {{ selectedDay.temperatureMin }}°C
-              </p>
-              <p>
-                <strong>Alba:</strong>
-                {{
-                  selectedDay.sunrise.slice(
-                    twilightStringRange[0],
-                    twilightStringRange[1]
-                  )
-                }}
-              </p>
-              <p>
-                <strong>Tramonto:</strong>
-                {{
-                  selectedDay.sunrise.slice(
-                    twilightStringRange[0],
-                    twilightStringRange[1]
-                  )
-                }}
+        <!-- previsioni settimanli -->
+        <div *ngIf="dailyData.length > 0" class="weekly-forecast">
+          <div class="forecast-grid">
+            <div
+              *ngFor="let day of dailyData.slice(1); let i = index"
+              class="forecast-card"
+            >
+              <h3>{{ day.date | date : 'mediumDate' }}</h3>
+              <!-- Giorno sopra -->
+              <i class="fas fa-cloud"></i>
+              <p class="forecast-temp">
+                {{ day.temperatureMax | roundTemp }}°C
               </p>
             </div>
           </div>
         </div>
-
-        <pre> {{ dataWeatherResponse | json }}</pre>
       </div>
     </div>
   `,
@@ -131,6 +95,7 @@ export class WeatherCardComponent implements OnInit {
   currentDate!: string;
   currentCityValue: string = 'Rome';
   cityInput: string = '';
+  isNightTime: boolean = false;
 
   latLongResponse: LatLongResponseModel = {
     results: [],
@@ -140,17 +105,24 @@ export class WeatherCardComponent implements OnInit {
   dataWeatherResponse!: MeteoDataResponseModel;
   hourlyData: HourlyWeather[] = [];
   dailyData: DailyWeather[] = [];
-  selectedDay: DailyWeather | null = null;
-  twilightStringRange: number[] = [11, 17];
+  // selectedDay: DailyWeather | null = null;
 
-  constructor(readonly apiservice: ApiServiceService) {}
+  constructor(
+    readonly apiservice: ApiServiceService,
+    @Inject(LOCALE_ID) readonly locale: string,
+    readonly renderer: Renderer2
+  ) {
+    this.currentDate = formatDate(new Date(), 'mediumDate', this.locale);
+  }
 
   ngOnInit(): void {
-    this.currentDate = new Date().toLocaleDateString();
     const savedCity = localStorage.getItem('selectedCity') ?? 'Rome';
     this.currentCityValue = savedCity;
     this.apiservice.setCityName(savedCity);
     this.getCityPosition(this.currentCityValue);
+    this.updateHeight();
+    window.addEventListener('resize', this.updateHeight);
+    this.setNightTime();
   }
 
   updateCity(): void {
@@ -166,7 +138,11 @@ export class WeatherCardComponent implements OnInit {
     this.apiservice.getLatLongData(city).subscribe({
       next: (response) => {
         this.latLongResponse = response;
-        if (this.latLongResponse.results.length > 0) {
+        console.log(this.latLongResponse);
+        if (
+          this.latLongResponse.results &&
+          this.latLongResponse.results.length > 0 // controlla se basta il primo membro (solo controllo esistenza e non lunghezza)
+        ) {
           const { latitude, longitude } = this.latLongResponse.results[0];
           this.getDataWeatherFromCityPos(latitude, longitude);
         } else {
@@ -221,12 +197,29 @@ export class WeatherCardComponent implements OnInit {
         sunset: this.dataWeatherResponse.daily.sunset[index],
       })
     );
-    if (!this.selectedDay && this.dailyData.length > 0) {
-      this.selectedDay = this.dailyData[1];
-    }
   }
 
-  selectDay(index: number): void {
-    this.selectedDay = this.dailyData[index];
+  updateHeight() {
+    document.documentElement.style.setProperty(
+      '--vh',
+      `${window.innerHeight * 0.01}px`
+    );
+  }
+
+  setNightTime(): void {
+    const updateNightTime = () => {
+      const currentTime = new Date().getHours();
+      // const currentTime = 19;
+      this.isNightTime = currentTime >= 18 || currentTime < 6; // Notte tra le 18:00 e le 5:59
+
+      if (this.isNightTime) {
+        this.renderer.addClass(document.body, 'night-time');
+      } else {
+        this.renderer.removeClass(document.body, 'night-time');
+      }
+    };
+
+    updateNightTime(); // Esegui subito il controllo
+    setInterval(() => updateNightTime(), 60000); // Mantieni il contesto con una arrow function
   }
 }

@@ -75,7 +75,7 @@ export interface Daily {
 
 // Tipo HourlyData (per dati orari aggregati)
 export interface HourlyWeather {
-  time: string | undefined; //
+  time: string | undefined;
   temperature: number | undefined;
   humidity: number | undefined;
   precipitation: number | undefined;
