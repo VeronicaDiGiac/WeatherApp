@@ -12,7 +12,6 @@ import { Observable, BehaviorSubject } from 'rxjs';
 export class ApiServiceService {
   constructor(readonly http: HttpClient) {}
 
-  // BehaviorSubject per gestire il nome della città
   readonly cityNameSource = new BehaviorSubject<string>('Roma');
   cityName$ = this.cityNameSource.asObservable();
 

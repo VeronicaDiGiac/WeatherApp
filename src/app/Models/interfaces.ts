@@ -90,9 +90,6 @@ export interface DailyWeather {
   temperatureMin: number;
   sunrise: string;
   sunset: string;
-  humidity?: number;
-  wind?: number;
-  precipitation?: number;
 }
 
 // (Opzionale) Interfacce per i dati orari se in futuro la risposta li include

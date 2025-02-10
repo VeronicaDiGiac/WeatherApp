@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, LOCALE_ID, Renderer2 } from '@angular/core';
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule, formatDate, NgIf } from '@angular/common';
 import { ApiServiceService } from '../../Services/api-service.service';
 import { FormsModule } from '@angular/forms';
 import {
@@ -8,88 +8,53 @@ import {
   HourlyWeather,
   DailyWeather,
 } from '../../Models/interfaces';
-import { RoundTempPipe } from '../../round-temp.pipe';
+
+import { NavbarComponent } from '../navbar/navbar.component';
+import { MeteoDetailsComponent } from '../meteo-details/meteo-details.component';
+import { DayDetailsComponent } from '../day-details/day-details.component';
 
 @Component({
   selector: 'app-weather-card',
   standalone: true,
-  imports: [CommonModule, FormsModule, RoundTempPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NavbarComponent,
+    MeteoDetailsComponent,
+    DayDetailsComponent,
+    NgIf,
+  ],
   template: `
     <div class="container">
-      <!-- Barra di ricerca -->
-      <div class="search-bar">
-        <input
-          type="text"
-          [(ngModel)]="cityInput"
-          placeholder="Inserisci una città"
-        />
-        <button (click)="updateCity()">Cerca</button>
-      </div>
-
-      <!-- Meteo attuale -->
-      <div
+      <app-navbar (citySearch)="updateCity($event)"></app-navbar>
+      <app-meteo-details
         *ngIf="dataWeatherResponse"
-        class="current-weather fade-in-container"
+        [currentCityValue]="currentCityValue"
+        [currentDate]="currentDate"
+        [dataWeatherResponse]="dataWeatherResponse"
       >
-        <h2 class="city-name">{{ currentCityValue }}</h2>
-        <p class="date">{{ currentDate }}</p>
-        <div class="temp-style">
-          <span
-            >{{
-              dataWeatherResponse.current.temperature_2m ?? 'N/D' | roundTemp
-            }}°C</span
-          >
+        <div class="day-grid">
+          <app-day-details
+            *ngFor="let day of dailyData.slice(1)"
+            [dailyData]="[day]"
+          ></app-day-details>
         </div>
-        <div class="weather-details">
-          <!-- <div class="icon-text">
-            <i class="fas fa-thermometer-half"></i>
-          </div> -->
-          <div class="icon-text">
-            <i class="fas fa-tint"></i>
-            <span
-              >{{
-                dataWeatherResponse.current.relative_humidity_2m ?? 'N/D'
-              }}%</span
-            >
-          </div>
-          <div class="icon-text">
-            <i class="fas fa-wind"></i>
-            <span
-              >{{
-                dataWeatherResponse.current.wind_speed_10m ?? 'N/D'
-              }}
-              km/h</span
-            >
-          </div>
-
-          <div class="icon-text">
-            <i class="fas fa-cloud"></i>
-            <span
-              >{{ dataWeatherResponse.current.precipitation ?? 'N/D' }} mm</span
-            >
-          </div>
-        </div>
-
-        <!-- previsioni settimanli -->
-        <div *ngIf="dailyData.length > 0" class="weekly-forecast">
-          <div class="forecast-grid">
-            <div
-              *ngFor="let day of dailyData.slice(1); let i = index"
-              class="forecast-card"
-            >
-              <h3>{{ day.date | date : 'mediumDate' }}</h3>
-              <!-- Giorno sopra -->
-              <i class="fas fa-cloud"></i>
-              <p class="forecast-temp">
-                {{ day.temperatureMax | roundTemp }}°C
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </app-meteo-details>
     </div>
   `,
-  styles: [``],
+  styles: [
+    `
+      .day-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 5px;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        margin-top: 50px;
+      }
+    `,
+  ],
 })
 export class WeatherCardComponent implements OnInit {
   currentDate!: string;
@@ -105,10 +70,9 @@ export class WeatherCardComponent implements OnInit {
   dataWeatherResponse!: MeteoDataResponseModel;
   hourlyData: HourlyWeather[] = [];
   dailyData: DailyWeather[] = [];
-  // selectedDay: DailyWeather | null = null;
 
   constructor(
-    readonly apiservice: ApiServiceService,
+    public apiservice: ApiServiceService,
     @Inject(LOCALE_ID) readonly locale: string,
     readonly renderer: Renderer2
   ) {
@@ -125,12 +89,14 @@ export class WeatherCardComponent implements OnInit {
     this.setNightTime();
   }
 
-  updateCity(): void {
-    if (this.cityInput.trim()) {
-      this.currentCityValue = this.cityInput;
-      localStorage.setItem('selectedCity', this.cityInput);
-      this.apiservice.setCityName(this.cityInput);
-      this.getCityPosition(this.cityInput);
+  updateCity(city: string): void {
+    if (city.trim()) {
+      // Usa direttamente l'argomento ricevuto
+      console.log('update city cliccata', city);
+      this.currentCityValue = city;
+      localStorage.setItem('selectedCity', city);
+      this.apiservice.setCityName(city);
+      this.getCityPosition(city);
     }
   }
 
@@ -158,6 +124,7 @@ export class WeatherCardComponent implements OnInit {
     this.apiservice.getDataWeather(latitude, longitude).subscribe({
       next: (responseDataWeather) => {
         this.dataWeatherResponse = responseDataWeather;
+        console.log(this.dataWeatherResponse);
         if (this.dataWeatherResponse.hourly?.time) {
           this.extractHourlyData();
         }
@@ -208,9 +175,8 @@ export class WeatherCardComponent implements OnInit {
 
   setNightTime(): void {
     const updateNightTime = () => {
-      const currentTime = new Date().getHours();
-      // const currentTime = 19;
-      this.isNightTime = currentTime >= 18 || currentTime < 6; // Notte tra le 18:00 e le 5:59
+      const currentTime = new Date().getUTCHours();
+      this.isNightTime = currentTime >= 18 || currentTime < 6;
 
       if (this.isNightTime) {
         this.renderer.addClass(document.body, 'night-time');
