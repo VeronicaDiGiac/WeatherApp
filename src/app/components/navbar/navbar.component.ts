@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [FormsModule],
   template: `
-    <!-- Barra di ricerca -->
     <div class="search-bar">
       <input
         type="text"
@@ -17,7 +16,7 @@ import { FormsModule } from '@angular/forms';
     </div>
   `,
   styles: `
-  /* search-bar.component.css */
+
 .search-bar {
   display: flex;
   gap: 5px;

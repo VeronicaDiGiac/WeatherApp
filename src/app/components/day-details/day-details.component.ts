@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { DailyWeather } from '../../Models/interfaces';
 import { RoundTempPipe } from '../../round-temp.pipe';
 import { DatePipe, NgIf } from '@angular/common';
@@ -26,7 +26,7 @@ import { DatePipe, NgIf } from '@angular/common';
 .weekly-forecast {
   display: flex;
   flex-wrap: wrap; /* Permette alle card di andare a capo */
-  justify-content: center; /* Centra le card */
+  justify-content: center; 
   align-items: flex-start;
   margin: 5px;
   padding: 10px 0;
@@ -58,7 +58,7 @@ import { DatePipe, NgIf } from '@angular/common';
 /* Hover sulla card */
 .forecast-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Ombra più pronunciata al hover */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); 
 }
 
 .forecast-card p {
@@ -71,11 +71,6 @@ import { DatePipe, NgIf } from '@angular/common';
 }
 `,
 })
-export class DayDetailsComponent implements OnInit {
-  ngOnInit() {
-    console.log('dailyData:', this.dailyData);
-    console.log('componente inizializzato daydetails ');
-  }
-
+export class DayDetailsComponent {
   @Input() dailyData: DailyWeather[] = [];
 }

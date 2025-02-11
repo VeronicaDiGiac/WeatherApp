@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MeteoDataResponseModel } from '../../Models/interfaces';
 import { RoundTempPipe } from '../../round-temp.pipe';
 import { CommonModule, NgIf } from '@angular/common';
@@ -117,11 +117,8 @@ import { CommonModule, NgIf } from '@angular/common';
     height: auto;
   }`,
 })
-export class MeteoDetailsComponent implements OnInit {
+export class MeteoDetailsComponent {
   @Input() currentCityValue: string = '';
   @Input() currentDate: string = '';
   @Input() dataWeatherResponse!: MeteoDataResponseModel;
-  ngOnInit() {
-    console.log('MeteoDetailsComponent inizializzato');
-  }
 }
